@@ -1,32 +1,44 @@
+#define rxIR    3
+#define txLEDs  0
+#define piezo   1
 
+#define irThreshold 400
 
-#define rxIR  4
-#define txIR  3
-#define txVL  2
+#define millisBeforeStarting 500
 
-void setup(){
-
-
+void setup() {
   analogReference(INTERNAL);
-  
-  pinMode(A3, INPUT);
-  pinMode(txIR, OUTPUT);
-  pinMode(txVL, OUTPUT);
 
-  digitalWrite(txVL, LOW);
+  pinMode(rxIR, INPUT);
+  pinMode(txLEDs, OUTPUT);
+  pinMode(piezo, OUTPUT);
+
+  digitalWrite(piezo, LOW);
+
+  //Startup Indication
+  digitalWrite(txLEDs, HIGH);
   delay(2000);
-  digitalWrite(txVL, HIGH);
+  digitalWrite(txLEDs, LOW);
 }
 
-void loop(){
-  int rxIR_brightness = analogRead(A3);
-
-  if(rxIR_brightness > 4){
-    delay(1000);
-    digitalWrite(txVL, LOW);
-    delay(1000);
-  }else{
-    digitalWrite(txVL, HIGH);
+void loop() {
+  int rxIR_brightness = analogRead(rxIR);
+  if (rxIR_brightness > irThreshold) {
+    delay(millisBeforeStarting);
+    turnOnAndFadeOutLEDs();
+  } else {
+    digitalWrite(txLEDs, LOW);
   }
+}
+
+
+void turnOnAndFadeOutLEDs(){
+  // POP on full
+    digitalWrite(txLEDs, HIGH);
+    //Fade out
+    for (int fadeValue = 255 ; fadeValue >= 0; fadeValue -= 5) {
+      analogWrite(txLEDs, fadeValue);
+      delay(15);
+    }
 }
 
